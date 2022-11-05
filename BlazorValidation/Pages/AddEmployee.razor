@@ -1,0 +1,80 @@
+﻿@page "/Employee/Create"
+@using BlazorValidation.Data
+
+<h3>New Employee</h3>
+<EditForm Model="_employee" EditContext="_editContext" Context="formContext" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <p>First Name: <InputText id="firstName" class="rounded-border" @bind-Value="_employee.FirstName" /></p>
+    <p>Last Name: <InputText id="lastName" class="rounded-border" @bind-Value="_employee.LastName" /></p>
+    <p>Email: <InputText id="email" class="rounded-border" @bind-Value="_employee.Email" /></p>
+
+    <div id="newEmployeeButtons">
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+</EditForm>
+
+@code {
+    private Employee _employee = new();
+
+    private EditContext _editContext;
+    private ValidationMessageStore messages;
+
+    protected override void OnInitialized()
+    {
+        _employee = new Employee();
+
+        EditContext _editContext = new(_employee);
+        _editContext.OnFieldChanged += EditContext_OnFieldChanged;
+        messages = new ValidationMessageStore(_editContext);
+    }
+
+    private void EditContext_OnFieldChanged(object sender, FieldChangedEventArgs args)
+    {
+        if (args.FieldIdentifier.FieldName == nameof(_employee.Email))
+        {
+            bool emailExists = true;
+
+            if (emailExists)
+            {
+                messages.Clear(args.FieldIdentifier);
+                messages.Add(args.FieldIdentifier, "A user with this email address already exists.");
+            }
+            else
+            {
+                messages.Clear(args.FieldIdentifier);
+            }
+        }
+        _editContext.NotifyValidationStateChanged();
+
+        var isValid = _editContext.Validate();
+
+        if (isValid)
+        {
+            this.HandleValidSubmit();
+        }
+
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        ApplicationUser user = new()
+            {
+                FirstName = _employee.FirstName,
+                LastName = _employee.LastName,
+                Email = _employee.Email,
+            };
+
+        var result = false;
+        if (result)
+        {
+            // A call to the database occurs here
+            _employee = new(); // Clear the form
+        }
+        else
+        {
+            // Show an error message
+        }
+    }
+}
