@@ -24,7 +24,7 @@
     {
         _employee = new Employee();
 
-        EditContext _editContext = new(_employee);
+        _editContext = new(_employee);
         _editContext.OnFieldChanged += EditContext_OnFieldChanged;
         messages = new ValidationMessageStore(_editContext);
     }
